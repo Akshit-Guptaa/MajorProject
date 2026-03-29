@@ -1,0 +1,87 @@
+<% layout('/layouts/boilerplate') -%>
+<body>
+    <div class="row">
+        <div class="col-8 offset-2">
+            <br>
+            <br>
+    <h3>Create A New Listings</h3>
+    <form method="POST" action="/listings" novalidate class="needs-validation" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input name="listing[title]" placeholder="enter title" type="text" class="form-control" required/>
+            <div class="valid-feedback"> Cool!👍</div>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="listing[description]" placeholder="enter description" class="form-control" required></textarea>
+            <div class="invalid-feedback"> Please enter a short descrption📝</div>
+        </div>
+        <div class="mb-3">
+            <label for="image" class="form-label">Upload Image</label>
+            <input name="listing[image]" type="file" class="form-control"/>required
+        </div> 
+
+        <div class="row">
+            <div class="mb-3 col-md-4">
+            <label for="price" class="form-label">Price</label>
+            <input name="listing[price]" placeholder="enter price" class="form-control"required/>
+            <div class="invalid-feedback">❌! Please enter valid price</div>
+        </div>
+
+        <div class="mb-3 col-md-8">
+            <label for="country" class="form-label">Country</label>
+            <input name="listing[country]" placeholder="enter country" type="text" class="form-control"required/>
+            <div class="invalid-feedback">Please enter the valid country name🌎</div>
+        </div>
+        </div>
+        
+<div class="row"> 
+    <div class="mb-3 col-md-4">
+        <label for="location" class="form-label">Location</label>
+        <input name="listing[location]" placeholder="enter location" type="text" class="form-control" required>
+        <div class="invalid-feedback">Please enter the valid location 📍</div>
+    </div>
+
+<div class="mb-3 col-md-12">
+    <label for="category" class="form-label"><b>Choose Categories</b></label>
+    <div class="category-wrapper p-3 border rounded-3 bg-white">
+        <p class="text-muted small mb-3">Select all that apply to your property:</p>
+        <div class="category-grid">
+            <% 
+            let categories = [
+                { name: "Trending", icon: "fa-fire" },
+                { name: "Rooms", icon: "fa-bed" },
+                { name: "Mountains", icon: "fa-mountain" },
+                { name: "Farms", icon: "fa-tractor" },
+                { name: "Iconic Cities", icon: "fa-city" },
+                { name: "Castles", icon: "fa-chess-rook" },
+                { name: "Amazing Pools", icon: "fa-water-ladder" },
+                { name: "Arctic", icon: "fa-snowflake" },
+                { name: "Beaches", icon: "fa-umbrella-beach" },
+                { name: "Deserts", icon: "fa-sun" },
+                { name: "Tiny Homes", icon: "fa-house-chimney-window" }
+            ]; 
+            %>
+
+            <% for(let cat of categories) { %>
+                <div class="category-option">
+                    <input type="checkbox" name="listing[category][]" value="<%= cat.name %>" id="<%= cat.name %>" class="btn-check" autocomplete="off">
+                    <label class="btn btn-outline-dark w-100 d-flex align-items-center gap-2" for="<%= cat.name %>">
+                        <i class="fa-solid <%= cat.icon %>"></i> <%= cat.name %>
+                    </label>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+</div>
+        </div>
+        <br>
+        <button class="btn btn-dark add-btn">Add</button>
+    </form>
+</body>
+</div>
+</div>
+</html>
