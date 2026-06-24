@@ -3,9 +3,19 @@ const router = express.Router();
 const User = require("../models/user.js");
 const wrapAsync = require("../utils/wrapAsync.js");
 const passport = require("passport");
-const { saveRedirectUrl } = require("../middleware.js");
+const { saveRedirectUrl, isLoggedIn } = require("../middleware.js");
+const rateLimit = require("express-rate-limit");
 
-const userController = require("../controllers/users.js")
+const userController = require("../controllers/users.js");
+
+// Rate limit auth routes — max 10 attempts per 15 minutes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: "Too many attempts, please try again after 15 minutes.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 router.route("/signup")
 .get( userController.renderSignupForm)
@@ -20,6 +30,11 @@ router.route("/login")
 }),
 userController.login);
 
+
+router.route("/favorites")
+    .get(isLoggedIn, wrapAsync(userController.renderFavorites));
+
+router.post("/favorites/:id", isLoggedIn, wrapAsync(userController.toggleFavorite));
 
 router.get("/logout", userController.logout);
 

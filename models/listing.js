@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const Review = require("./reviews.js");
-const { required } = require("joi");
 
 const listingSchema = new Schema({
     title: {
@@ -44,8 +43,17 @@ category: {
     type: [String],
     enum: ["Trending", "Rooms", "Iconic Cities", "Mountains", "Castles", "Amazing Pools", "Farms", "Arctic", "Beaches", "Deserts", "Tiny Homes"],
     required: true,
+},
+embedding: {
+    type: [Number]
 }
-});
+}, { timestamps: true });
+
+// Indexes for performance at scale
+listingSchema.index({ title: "text", location: "text", country: "text" });
+listingSchema.index({ category: 1 });
+listingSchema.index({ geometry: "2dsphere" });
+listingSchema.index({ price: 1 });
 
 listingSchema.post("findOneAndDelete", async(listing) => {
   if(listing) {

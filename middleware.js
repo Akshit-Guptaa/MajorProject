@@ -8,6 +8,12 @@ module.exports.isLoggedIn = (req, res, next) => {
   if(!req.isAuthenticated()) {
     req.session.redirectUrl = req.originalUrl;
     req.flash("error", "you must be logged in to create listings!");
+    
+    // Check if the request is an AJAX/fetch request
+    if (req.xhr || req.headers.accept.indexOf('json') > -1 || req.path.includes('/favorites')) {
+        return res.status(401).json({ success: false, message: "Please log in first" });
+    }
+    
     return res.redirect("/login");
     }
   next();

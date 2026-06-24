@@ -1,23 +1,88 @@
 const Listing = require("../models/listing.js");
 const axios = require("axios");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { generateEmbedding, cosineSimilarity } = require("../utils/embedding.js");
 
 module.exports.index = async (req, res) => {
-    const { category, search } = req.query; // Capture both category and search queries
+    const { category, search, sort, page = 1 } = req.query; // Capture query params
     let filter = {};
 
     if (category) {
         filter = { category: { $in: [category] } };
-    }else if (search) {
-        filter = {
-            $or: [
-                { title: { $regex: search, $options: "i" } },    // 'i' makes it case-insensitive
-                { location: { $regex: search, $options: "i" } },
-                { country: { $regex: search, $options: "i" } }
-            ]
-        };
     }
-    const allListings = await Listing.find(filter);
-    res.render("listings/index.ejs", { allListings, category, search });
+
+    // Determine sorting order
+    let sortOption = { createdAt: -1 }; // default newest
+    if (sort === "price_asc") {
+        sortOption = { price: 1 };
+    } else if (sort === "price_desc") {
+        sortOption = { price: -1 };
+    }
+
+    const limit = 1000; // Load all listings (up to 1000) at once
+    const currentPage = 1;
+    
+    let allListings = [];
+    let totalListings = 0;
+
+    if (search) {
+        // SEMANTIC SEARCH LOGIC
+        const searchEmbedding = await generateEmbedding(search);
+        
+        const listingsToCompare = await Listing.find(filter);
+        
+        let scoredListings = listingsToCompare.map(listing => {
+            let score = 0;
+            // Check if both embeddings exist and are valid (not all zeros)
+            if (listing.embedding && listing.embedding.length > 0 && searchEmbedding.some(v => v !== 0)) {
+                score = cosineSimilarity(searchEmbedding, listing.embedding);
+            } else {
+                 // Fallback to basic string inclusion if embeddings fail or missing API Key
+                 const searchLower = search.toLowerCase();
+                 if (listing.title.toLowerCase().includes(searchLower) || listing.location.toLowerCase().includes(searchLower) || (listing.description && listing.description.toLowerCase().includes(searchLower))) {
+                     score = 1; // High score for direct match
+                 } else {
+                     score = -1; // Very low score
+                 }
+            }
+            return { listing, score };
+        });
+        
+        // Filter out very low scores (threshold 0.65 means highly related)
+        scoredListings = scoredListings.filter(item => item.score > 0.65 || item.score === 1);
+        
+        // Sort by score descending
+        scoredListings.sort((a, b) => b.score - a.score);
+        
+        totalListings = scoredListings.length;
+        
+        // Apply in-memory pagination
+        const startIndex = (currentPage - 1) * limit;
+        const endIndex = startIndex + limit;
+        allListings = scoredListings.slice(startIndex, endIndex).map(item => item.listing);
+    } else {
+        // STANDARD QUERY LOGIC
+        const skip = (currentPage - 1) * limit;
+        totalListings = await Listing.countDocuments(filter);
+        console.log("DEBUG: totalListings =", totalListings, "limit =", limit, "filter =", filter);
+
+        allListings = await Listing.find(filter)
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limit);
+    }
+
+    const totalPages = Math.ceil(totalListings / limit) || 1;
+
+    res.render("listings/index.ejs", { 
+        allListings, 
+        category, 
+        search, 
+        sort, 
+        currentPage, 
+        totalPages, 
+        totalListings 
+    });
 };
 
 module.exports.renderNewForm = (req, res) => {
@@ -41,6 +106,10 @@ module.exports.createListing = async (req, res) => {
   const newListing = new Listing(req.body.listing);
   newListing.owner = req.user._id;
   newListing.image = {url, filename};
+
+  const textToEmbed = `${newListing.title} ${newListing.description} ${newListing.location} ${newListing.category ? newListing.category.join(' ') : ''}`;
+  const embedding = await generateEmbedding(textToEmbed);
+  newListing.embedding = embedding;
 
   try {
         const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`, {
@@ -106,6 +175,11 @@ module.exports.createListing = async (req, res) => {
         }
     }
     Object.assign(listing, req.body.listing);
+    
+    const textToEmbed = `${listing.title} ${listing.description} ${listing.location} ${listing.category ? listing.category.join(' ') : ''}`;
+    const embedding = await generateEmbedding(textToEmbed);
+    listing.embedding = embedding;
+    
     if (typeof req.file !== "undefined") {
         let url = req.file.path;
         let filename = req.file.filename;

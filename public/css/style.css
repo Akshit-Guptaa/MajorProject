@@ -1,170 +1,459 @@
+:root {
+  /* Premium Red Color Palette */
+  --primary-color: #FF385C; /* Classic vibrant red */
+  --primary-hover: #E31C5F;
+  --bg-color: #fcfcfc; /* Bright, clean off-white */
+  --text-dark: #222222;
+  --text-muted: #717171;
+  --border-color: #ebebeb;
+  
+  /* Typography */
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  
+  /* Animations & Shadows */
+  --transition-fast: 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --shadow-soft: 0 8px 28px rgba(0, 0, 0, 0.08); 
+  --shadow-hover: 0 16px 32px rgba(255, 56, 92, 0.15); /* Red tinted hover shadow */
+}
 
 body {
-  font-family: "Plus Jakarta Sans", sans-serif !important;
-  font-optical-sizing: auto;
-  font-weight: 400m !important; 
-  font-style: normal;
+  font-family: var(--font-body);
+  color: var(--text-dark);
+  background-color: var(--bg-color);
+  font-weight: 400; 
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-    margin: 0;
+  margin: 0;
   padding: 0;
-}   
-.container{
-    flex: 1;
+  -webkit-font-smoothing: antialiased;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.container {
+  flex: 1;
+}
+
+/* =========================================
+   Glassmorphism Navbar
+========================================= */
 .navbar {
-    height: 5rem;
-    background-color: white;
-}
-.fa-compass{
-    color: red;
-    font-size: 2rem;
-}
-.nav-link{
-    color: #222222 !important;
-}
-
-/* Footer */
-
-.f-info-links a {
- text-decoration: none;
- color: #222222;
+  height: 5rem;
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: all var(--transition-fast);
 }
 
-.f-info-links a:hover {
-    text-decoration: underline;
+.navbar-brand i {
+  color: var(--primary-color);
+  font-size: 2.2rem;
+  transition: transform var(--transition-fast);
 }
 
-.f-info-links,
- .f-info-socials,
- .f-info-brand {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
+.navbar-brand:hover i {
+  transform: scale(1.1) rotate(15deg);
 }
 
-.f-info-socials i {
-    font-size: 1.2rem;
-    margin-right: 1rem;
-
+.nav-link {
+  color: var(--text-dark) !important;
+  font-weight: 500;
+  position: relative;
 }
-footer {
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 50%;
+  background-color: var(--primary-color);
+  transition: all var(--transition-fast);
+  transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
   width: 100%;
-  background-color: #ebebeb;
 }
 
-.f-info {
-  text-align: center;
-  height: 8rem;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-  align-items: center;
-  max-width: 1200px;
-  margin: auto;
-}
-
-
-/* Cards */
+/* =========================================
+   Interactive Property Cards
+========================================= */
 .listing-card {
-    border: none !important;
-    margin-bottom: 2rem;
+  border: none !important;
+  margin-bottom: 2rem;
+  background: transparent;
 }
 
 .card-img-top {
-    border-radius: 1rem !important;
-    width: 100%;
-    object-fit: cover !important;
+  border-radius: 16px !important;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover !important;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.card-body{
-    padding: 0 !important;
+.card-img-wrapper {
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  position: relative;
+  transition: box-shadow var(--transition-fast);
+}
+
+/* Micro-animation: Image scale and shadow on hover */
+.listing-link:hover .card-img-wrapper {
+  box-shadow: var(--shadow-hover);
+}
+
+.listing-link:hover .card-img-top {
+  transform: scale(1.05);
+}
+
+.card-body {
+  padding: 1rem 0 0 0 !important;
 }
 
 .card-text p {
-   font-weight: 400;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.card-text b {
+  font-weight: 600;
+}
+
+.card-text i {
+  color: var(--text-muted);
+  font-style: normal;
+  font-size: 0.95rem;
 }
 
 .listing-link {
-    text-decoration: none;
+  text-decoration: none;
+  color: inherit;
 }
 
-/* Card Efeect */
-.card-img-overlay {
+/* =========================================
+   Staggered Entrance Animation
+========================================= */
+@keyframes fadeSlideUp {
+  0% {
     opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.card-img-overlay:hover {
-    opacity: 0.2;
-    background-color: white;
-}
-/* new page */
-.add-btn{
-    background-color: #fe242d !important;
-    border: none !important;
+.listing-card {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-/* Edit page */
-.edit-btn{
-     background-color: #fe242d !important;
-    border: none !important;
+/* We will assign staggered delays inline or via pseudo-classes */
+.listing-link:nth-child(1) .listing-card { animation-delay: 0.05s; }
+.listing-link:nth-child(2) .listing-card { animation-delay: 0.1s; }
+.listing-link:nth-child(3) .listing-card { animation-delay: 0.15s; }
+.listing-link:nth-child(4) .listing-card { animation-delay: 0.2s; }
+.listing-link:nth-child(5) .listing-card { animation-delay: 0.25s; }
+.listing-link:nth-child(6) .listing-card { animation-delay: 0.3s; }
+.listing-link:nth-child(7) .listing-card { animation-delay: 0.35s; }
+.listing-link:nth-child(8) .listing-card { animation-delay: 0.4s; }
+.listing-link:nth-child(n+9) .listing-card { animation-delay: 0.45s; }
+
+/* =========================================
+   Heart Icon Micro-Animation
+========================================= */
+.heart-icon {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 1.5rem;
+  z-index: 10;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-/* Show page */
-.show-img{
-    height: 30vh;
+
+.heart-icon:hover {
+  color: #FF385C;
+  transform: scale(1.2);
 }
-.btns{
-    display: flex;
+
+.heart-icon.liked {
+  color: #FF385C;
+  animation: popHeart 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.show-card{
-    padding-left: 0;
-    padding-right: 0;
+
+@keyframes popHeart {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1.2); }
 }
+
+/* =========================================
+   Premium Buttons
+========================================= */
+.btn {
+  font-family: var(--font-body);
+  font-weight: 500;
+  border-radius: 50px;
+  padding: 0.6rem 1.5rem;
+  transition: all var(--transition-fast);
+}
+
+.add-btn, .edit-btn, .btn-dark {
+  background-color: var(--primary-color) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
+}
+
+.add-btn:hover, .edit-btn:hover, .btn-dark:hover {
+  background-color: var(--primary-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 56, 92, 0.4);
+}
+
+/* =========================================
+   Show Page & Map
+========================================= */
+.show-img {
+  height: 45vh;
+  border-radius: 20px;
+  object-fit: cover;
+  box-shadow: var(--shadow-soft);
+}
+
+.btns {
+  display: flex;
+  gap: 1rem;
+}
+
+.show-card {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
 #map {
-    height: 400px;
-    width: 100%;
-    border-radius: 1.2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid #ddd;
+  height: 400px;
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-color);
+  margin-bottom: 2rem;
 }
+
 #map .leaflet-tile-container {
-    filter: saturate(1.2) contrast(1.05); /* Increases green/blue vibrance */
+  filter: saturate(1.1) contrast(1.05);
 }
+
+/* =========================================
+   Footer
+========================================= */
+footer {
+  width: 100%;
+  background-color: white;
+  border-top: 1px solid var(--border-color);
+  margin-top: 4rem;
+}
+
+.f-links a {
+  text-decoration: none;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+  line-height: 2;
+}
+
+.f-links a:hover {
+  color: var(--text-dark);
+  text-decoration: underline;
+}
+
+.hover-dark:hover {
+  color: var(--text-dark) !important;
+  text-decoration: underline !important;
+}
+
+.f-info-socials i {
+  font-size: 1.5rem;
+  margin: 0 0.8rem;
+  color: var(--text-dark);
+  transition: all var(--transition-fast);
+}
+
+.f-info-socials i:hover {
+  color: var(--primary-color);
+  transform: translateY(-3px);
+}
+
+/* =========================================
+   Forms & Categories
+========================================= */
+.form-control, .form-select {
+  border-radius: 12px;
+  padding: 0.8rem;
+  border: 1px solid var(--border-color);
+  background-color: white;
+  transition: all var(--transition-fast);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(255, 56, 92, 0.1);
+}
+
 .category-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
 }
 
 .category-option label {
-    border-radius: 8px;
-    padding: 10px;
-    font-size: 0.9rem;
-    border: 1px solid #ddd;
-    color: #444;
-    transition: all 0.2s ease;
-}
-
-/* Style when selected */
-.btn-check:checked + .btn-outline-dark {
-    background-color: #fe424d !important; 
-    border-color: #fe424d !important;
-    color: white !important;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  color: var(--text-dark);
+  background-color: white;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  text-align: center;
 }
 
 .category-option label:hover {
-    border-color: black;
-    background-color: #f7f7f7;
+  border-color: var(--text-dark);
+  background-color: var(--bg-color);
+  transform: translateY(-2px);
+}
+
+.btn-check:checked + .btn-outline-dark {
+  background-color: var(--primary-color) !important; 
+  border-color: var(--primary-color) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
 }
 
 .img-preview {
-    width: 300px; /* Adjust this to your liking */
-    height: auto;
-    border-radius: 10px;
-    margin-top: 10px;
-    object-fit: cover;
+  width: 100%;
+  max-width: 300px;
+  height: 200px;
+  border-radius: 16px;
+  margin-top: 15px;
+  object-fit: cover;
+  box-shadow: var(--shadow-soft);
 }
+
+/* =========================================
+   Skeleton Loaders & Carousels
+========================================= */
+.skeleton {
+    background-color: #e2e5e7;
+    background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+    background-size: 40px 100%;
+    background-repeat: no-repeat;
+    background-position: left -40px top 0;
+    animation: shine 1.2s ease infinite;
+}
+
+@keyframes shine {
+    to { background-position: right -40px top 0; }
+}
+
+.skeleton-img {
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.skeleton-img.loaded {
+    opacity: 1;
+}
+
+/* Custom Carousel Controls */
+.carousel-control-prev, .carousel-control-next {
+    width: 15%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.card-img-wrapper:hover .carousel-control-prev, 
+.card-img-wrapper:hover .carousel-control-next {
+    opacity: 0.8;
+}
+
+.carousel-control-prev-icon, .carousel-control-next-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    padding: 10px;
+    background-size: 50%;
+}
+.carousel-indicators {
+    margin-bottom: 0.5rem;
+}
+.carousel-indicators [data-bs-target] {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin: 0 3px;
+}
+
+:root {
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  --card-bg: #ffffff;
+}
+
+:root.dark-theme {
+  --bg-color: #121212;
+  --text-dark: #fcfcfc;
+  --text-muted: #a1a1a1;
+  --border-color: #333333;
+  --shadow-soft: 0 8px 28px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 16px 32px rgba(255, 56, 92, 0.2);
+  --nav-bg: rgba(18, 18, 18, 0.85);
+  --card-bg: #1e1e1e;
+}
+
+body { background-color: var(--bg-color) !important; color: var(--text-dark) !important; }
+.navbar { background-color: var(--nav-bg) !important; }
+.card { background-color: var(--card-bg) !important; border-color: var(--border-color) !important; }
+.form-control, .form-select, .category-option label { 
+  background-color: var(--card-bg) !important; 
+  color: var(--text-dark) !important; 
+  border-color: var(--border-color) !important; 
+}
+
+.form-control::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1 !important;
+}
+.tax-toggle { background-color: var(--card-bg) !important; border-color: var(--border-color) !important; }
+.dropdown-menu { background-color: var(--card-bg) !important; border-color: var(--border-color) !important; }
+.dropdown-item { color: var(--text-dark) !important; }
+.dropdown-item:hover { background-color: var(--border-color) !important; color: var(--primary-color) !important; }
+
+.listing-link, .listing-link:visited, .listing-link:hover, .listing-link:active { 
+  text-decoration: none !important; 
+  color: var(--text-dark) !important; 
+}
+
+a, a:visited, a:hover, a:active {
+  color: var(--text-dark);
+}
+
+.text-muted { color: var(--text-muted) !important; }

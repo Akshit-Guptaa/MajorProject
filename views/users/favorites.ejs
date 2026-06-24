@@ -1,0 +1,65 @@
+<% layout('/layouts/boilerplate') -%> 
+
+<div class="row mt-4">
+    <div class="col-12">
+        <h2 class="mb-4">Your Favorites</h2>
+        <% if (!allListings || allListings.length === 0) { %>
+            <div class="alert alert-info border-0 shadow-sm rounded-4 text-center py-5">
+                <i class="fa-solid fa-heart-crack fs-1 text-muted mb-3"></i>
+                <h4>No favorites yet!</h4>
+                <p class="text-muted">Start exploring and click the heart icon on properties you like.</p>
+                <a href="/listings" class="btn btn-dark mt-3">Explore Now</a>
+            </div>
+        <% } else { %>
+            <div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-sm-1" id="listings-container">
+                <% for(let listing of allListings) { %>
+                    <a href="/listings/<%= listing._id %>" class="listing-link">
+                       <div class="card col listing-card">
+                        <div class="card-img-wrapper">
+                            <i class="fa-solid fa-heart heart-icon liked" onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite(this, '<%= listing._id %>')"></i>
+                            <img src="<%= listing.url || (listing.image && listing.image.url) %>" class="card-img-top" alt="listing_image" onerror="this.src='https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800';">
+                        </div>
+                         <div class="card-body mt-2">
+                          <p class="card-text">
+                            <b class="fs-5"><%= listing.title %></b> <br>
+                            <span class="text-muted"><i class="fa-solid fa-location-dot me-1"></i> <%= listing.location %></span><br>
+                            <span class="fw-bold mt-1 d-block">&#8377; <%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %> <span class="fw-normal text-muted">night</span></span>
+                           <i class="tax-info text-muted" style="font-size: 0.85rem;"> &nbsp; &nbsp; +18% GST</i>
+                          </p>
+                        </div>
+                      </div>
+                    </a>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<script>
+    async function toggleFavorite(iconElement, listingId) {
+        try {
+            const response = await fetch(`/favorites/${listingId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            if (data.success) {
+                iconElement.classList.toggle('liked', data.isFavorite);
+                if (!data.isFavorite) {
+                    // Remove the card visually if removed from favorites page
+                    iconElement.closest('.listing-link').remove();
+                }
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+        }
+    }
+</script>

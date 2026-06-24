@@ -1,15 +1,100 @@
 <% layout('/layouts/boilerplate') -%> 
 
 <style>
+    .filters-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        overflow: hidden;
+    }
     #filters{
         display: flex;
         flex-wrap: nowrap;
         align-items: center;
+        overflow-x: auto;
+        scroll-behavior: smooth;
         -ms-overflow-style: none;
         scrollbar-width: none;
+        flex: 1;
+        padding-right: 2rem;
+        padding-left: 1rem;
     }
     #filters::-webkit-scrollbar {
-    display: none;             
+        display: none;             
+    }
+    .scroll-btn {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+    .scroll-btn:hover {
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        transform: scale(1.05);
+    }
+    .left-btn {
+        position: absolute;
+        left: 0;
+        background: linear-gradient(90deg, var(--bg-color) 0%, var(--bg-color) 30%, transparent 100%);
+        border: none;
+        padding-left: 5px;
+        width: 80px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        border-radius: 0;
+        box-shadow: none;
+        z-index: 10;
+    }
+    .left-btn i {
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--card-bg);
+      color: var(--text-dark);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .right-btn {
+        position: absolute;
+        right: 0;
+        background: linear-gradient(270deg, var(--bg-color) 0%, var(--bg-color) 30%, transparent 100%);
+        border: none;
+        padding-right: 5px;
+        width: 80px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        border-radius: 0;
+        box-shadow: none;
+        z-index: 10;
+    }
+    .right-btn i {
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--card-bg);
+      color: var(--text-dark);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .filter {
       text-align: center;
@@ -22,19 +107,19 @@
     .filter:hover {
       opacity: 1;
       cursor: pointer;
+      color: var(--primary-color);
     }
     .filter p {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
+      font-weight: 500;
     }
     .filter-link {
-    text-decoration: none !important; /* Removes underlines */
-    color: #6a6a6a !important;      /* Restores the gray color */
+    text-decoration: none !important;
+    color: var(--text-muted) !important;
     transition: 0.2s ease-in-out;
     }
-    .filter-link:visited, 
-    .filter-link:active, 
     .filter-link:hover {
-    color: black !important; /* Turns black only when hovered or active */
+    color: var(--primary-color) !important;
     }
 
     .tax-info {
@@ -42,36 +127,56 @@
     }
 
     .tax-toggle {
-      border: 1px solid black;
-      border-radius: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
       height: 3.25rem;
-      padding: 1rem;
-      margin-left: 2rem;
+      padding: 0.8rem 1.2rem;
+      margin-left: 1rem;
       display: flex;
       align-items: center;
       white-space: nowrap;
-      flex-shrink: 0
+      flex-shrink: 0;
+      background-color: var(--card-bg);
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
-
-    /* @media (max-width: 600px) {
-    .tax-toggle {
-        height: 2.5rem;      
-        padding: 0 0.5rem;  
-        font-size: 0.7rem;  
+    .tax-toggle:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border-color: #ccc;
     }
-    .form-check-input {
-        width: 2em !important;
-        height: 1em !important;
+    .tax-toggle .form-switch {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
     }
-    
-    .filter p {
-        font-size: 0.7rem;  
-    } 
-}*/
+    .tax-toggle .form-check-input {
+      cursor: pointer;
+      width: 2.2em;
+      height: 1.2em;
+      margin-top: 0;
+      margin-left: 0.75rem;
+    }
+    .tax-toggle .form-check-input:focus {
+      box-shadow: none;
+    }
+    .tax-toggle .form-check-input:checked {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    .tax-toggle .form-check-label {
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
 </style>
-<div id="filters" class="d-flex align-items-center overflow-x-auto flex-nowrap pb-2">
+
+<div class="d-flex align-items-center mt-3 mb-2 w-100">
+  <div class="filters-wrapper" style="flex: 1; min-width: 0;">
+  <button class="scroll-btn left-btn" onclick="document.getElementById('filters').scrollBy({left: -300, behavior: 'smooth'})">
+    <i class="fa-solid fa-chevron-left"></i>
+  </button>
+  <div id="filters" class="pb-2">
   <% 
-    // Define all categories with their matching FontAwesome icons
     let filterOptions = [
       { name: "Trending", icon: "fa-fire" },
       { name: "Rooms", icon: "fa-bed" },
@@ -83,51 +188,78 @@
       { name: "Arctic", icon: "fa-igloo" },
       { name: "Beaches", icon: "fa-umbrella-beach" },
       { name: "Deserts", icon: "fa-sun-plant-wilt" },
-      { name: "Tiny Homes", icon: "fa-house-chimney-crack" }
+      { name: "Tiny Homes", icon: "fa-house-chimney-crack" },
+      { name: "Lakefront", icon: "fa-water" },
+      { name: "Cabins", icon: "fa-house-wood" },
+      { name: "Skiing", icon: "fa-person-skiing" },
+      { name: "Camping", icon: "fa-campground" },
+      { name: "Historical", icon: "fa-landmark" },
+      { name: "Treehouses", icon: "fa-tree" }
     ];
   %>
 
   <% for(let option of filterOptions) { %>
     <a href="/listings?category=<%= option.name %>" class="filter-link">
       <div class="filter">
-        <div><i class="fa-solid <%= option.icon %>"></i></div>
-        <p><%= option.name %></p>
+        <div><i class="fa-solid <%= option.icon %> fs-4"></i></div>
+        <p class="mt-2"><%= option.name %></p>
       </div>
     </a>
   <% } %>
-      <div class="tax-toggle ms-auto">
-        <div class="form-check-reverse form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
-        <label class="form-check-label" for="switchCheckDefault">Display total after taxes</label>
-       </div>
-      </div>
+  </div>
+  <button class="scroll-btn right-btn" onclick="document.getElementById('filters').scrollBy({left: 300, behavior: 'smooth'})">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+</div>
+</div>
 
-    </div>
-<div class="row  row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
+<div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-4" id="listings-container">
     <% for(let listing of allListings) { %>
         <a href="/listings/<%= listing._id %>" class="listing-link">
-   <div class="card col listing-card" >
-    <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image" style="height: 20rem">
-    <div class="card-img-overlay"></div>
-     <div class="card-body">
-      <p class="card-text">
-        <b><%= listing.title  %> <br></b>
-       &#8377; <%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %> / night
-       <i class="tax-info"> &nbsp; &nbsp; +18% GST</i>
-      </p>
-    </div>
-   </div>
-   </a>
-      <%  } %>   
-      <% if (allListings.length === 0) { %>
-    <div class="col-12 mt-5 text-center">
-        <h3>No listings found for "<%= search || category %>"</h3>
-        <p>Try searching for something else or explore all categories.</p>
-        <a href="/listings" class="btn btn-dark">View All Listings</a>
-    </div>
-<% } %>
+           <div class="card col listing-card">
+            <div class="card-img-wrapper">
+                <% 
+                  let isLiked = false;
+                  if (locals.currUser && locals.currUser.favorites && locals.currUser.favorites.some(fav => fav.toString() === listing._id.toString())) {
+                      isLiked = true;
+                  }
+                %>
+                <i class="fa-solid fa-heart heart-icon <%= isLiked ? 'liked' : '' %>" onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite(this, '<%= listing._id %>')"></i>
+                
+                <img src="<%= listing.url || (listing.image && listing.image.url) %>" class="card-img-top" alt="listing_image" onerror="this.src='https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800';">
+            </div>
+             <div class="card-body mt-2">
+              <p class="card-text">
+                <b class="fs-5"><%= listing.title %></b> <br>
+                <span class="text-muted"><i class="fa-solid fa-location-dot me-1"></i> <%= listing.location %></span><br>
+                <span class="fw-bold mt-1 d-block">&#8377; <%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %> <span class="fw-normal text-muted">night</span></span>
+               <i class="tax-info text-muted" style="font-size: 0.85rem;"> &nbsp; &nbsp; +18% GST</i>
+              </p>
+            </div>
+           </div>
+        </a>
+    <% } %>   
+
+    <% if (allListings.length === 0) { %>
+        <div class="col-12 mt-5 text-center p-5 bg-white rounded-4 shadow-sm border">
+            <i class="fa-solid fa-plane-slash fs-1 text-muted mb-3"></i>
+            <h3>No listings found for "<%= search || category %>"</h3>
+            <p class="text-muted">Try searching for something else or explore all categories.</p>
+            <a href="/listings" class="btn add-btn mt-2">Explore All Destinations</a>
+        </div>
+    <% } %>
 </div>
- <script>
+
+<!-- Global Map Container -->
+<div id="global-map-container" class="mt-4" style="display: none; height: 70vh; width: 100%; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-soft);">
+    <div id="global-map" style="height: 100%; width: 100%;"></div>
+</div>
+
+<!-- Floating Map Toggle Button -->
+<button id="map-toggle-btn" class="btn btn-dark rounded-pill px-4 py-3" style="position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 1000; box-shadow: 0 6px 16px rgba(0,0,0,0.2); font-weight: 600; display: flex; align-items: center; gap: 8px; transition: transform 0.2s ease;">
+  <span id="map-toggle-text">Show map</span> <i class="fa-solid fa-map" id="map-toggle-icon"></i>
+</button>
+<script>
   let taxSwitch = document.getElementById("switchCheckDefault");
   taxSwitch.addEventListener("click", () => {
     let taxInfo = document.getElementsByClassName("tax-info");
@@ -137,7 +269,136 @@
       } else {
         info.style.display = "none";
       }
-      
     }
-  })
- </script>
+  });
+
+  function changeSort(sortVal) {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('sort', sortVal);
+    urlParams.set('page', '1');
+    window.location.search = urlParams.toString();
+  }
+
+  function changePage(pageNum) {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('page', pageNum);
+    window.location.search = urlParams.toString();
+  }
+</script>
+
+<script>
+    async function toggleFavorite(iconElement, listingId) {
+        try {
+            const response = await fetch(`/favorites/${listingId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            
+            if (response.status === 401 || (data && !data.success && data.message === 'Please log in first')) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            if (data.success) {
+                iconElement.classList.toggle('liked', data.isFavorite);
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+        }
+    }
+</script>
+
+<script>
+    // Global Map Logic
+    const mapToggleBtn = document.getElementById('map-toggle-btn');
+    const mapToggleText = document.getElementById('map-toggle-text');
+    const mapToggleIcon = document.getElementById('map-toggle-icon');
+    const listingsContainer = document.getElementById('listings-container');
+    const mapContainer = document.getElementById('global-map-container');
+    
+    let map = null;
+    let mapInitialized = false;
+    
+    mapToggleBtn.addEventListener('click', () => {
+        if (mapContainer.style.display === 'none') {
+            // Show Map
+            listingsContainer.style.display = 'none';
+            mapContainer.style.display = 'block';
+            mapToggleText.innerText = 'Show list';
+            mapToggleIcon.classList.replace('fa-map', 'fa-list');
+            
+            if (!mapInitialized) {
+                initGlobalMap();
+                mapInitialized = true;
+            } else {
+                map.invalidateSize();
+            }
+        } else {
+            // Show List
+            mapContainer.style.display = 'none';
+            listingsContainer.style.display = 'flex';
+            mapToggleText.innerText = 'Show map';
+            mapToggleIcon.classList.replace('fa-list', 'fa-map');
+        }
+    });
+
+    function initGlobalMap() {
+        const allListingsData = <%- JSON.stringify(allListings) %>;
+        
+        map = L.map('global-map', {
+            zoomControl: false
+        }).setView([20.5937, 78.9629], 5); // Default to India roughly
+        
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20,
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        // Custom Marker Icon
+        const priceIcon = (price) => L.divIcon({
+            html: `<div style="background-color: white; border-radius: 20px; padding: 5px 10px; font-weight: bold; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap;">&#8377; ${price}</div>`,
+            className: 'custom-price-icon',
+            iconSize: [null, null]
+        });
+
+        const bounds = [];
+
+        allListingsData.forEach(listing => {
+            if (listing.geometry && listing.geometry.coordinates && listing.geometry.coordinates.length === 2) {
+                const lng = listing.geometry.coordinates[0];
+                const lat = listing.geometry.coordinates[1];
+                bounds.push([lat, lng]);
+
+                const marker = L.marker([lat, lng], { 
+                    icon: priceIcon(listing.price ? listing.price.toLocaleString("en-IN") : "N/A") 
+                }).addTo(map);
+
+                const imageUrl = listing.url || (listing.image && listing.image.url);
+                const title = listing.title;
+                const location = listing.location;
+                const price = listing.price ? listing.price.toLocaleString("en-IN") : "N/A";
+                const id = listing._id;
+
+                marker.bindPopup(`
+                    <a href="/listings/${id}" style="text-decoration: none; color: inherit; display: block; width: 200px;">
+                        <img src="${imageUrl}" style="width: 100%; height: 140px; object-fit: cover; border-radius: 12px; margin-bottom: 8px;">
+                        <b style="font-size: 1rem;">${title}</b><br>
+                        <span class="text-muted" style="font-size: 0.85rem;">${location}</span><br>
+                        <b style="font-size: 0.95rem; margin-top: 4px; display: block;">&#8377; ${price}</b>
+                    </a>
+                `);
+            }
+        });
+
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }
+    }
+</script>
+
+

@@ -12,13 +12,18 @@
             <div class="valid-feedback"> Cool!👍</div>
         </div>
         <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea name="listing[description]" placeholder="enter description" class="form-control" required></textarea>
-            <div class="invalid-feedback"> Please enter a short descrption📝</div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="description" class="form-label mb-0">Description</label>
+                <button type="button" id="ai-generate-btn" class="btn btn-sm btn-outline-dark" style="border-radius: 0.5rem;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generate with AI
+                </button>
+            </div>
+            <textarea name="listing[description]" id="description" placeholder="enter description" class="form-control" required></textarea>
+            <div class="invalid-feedback"> Please enter a short description📝</div>
         </div>
         <div class="mb-3">
             <label for="image" class="form-label">Upload Image</label>
-            <input name="listing[image]" type="file" class="form-control"/>required
+            <input name="listing[image]" type="file" class="form-control" required/>
         </div> 
 
         <div class="row">
@@ -81,6 +86,55 @@
         <br>
         <button class="btn btn-dark add-btn">Add</button>
     </form>
+    <br>
+    <br>
+    <script>
+    document.getElementById("ai-generate-btn").addEventListener("click", async () => {
+        const title = document.querySelector('input[name="listing[title]"]').value;
+        const price = document.querySelector('input[name="listing[price]"]').value;
+        const location = document.querySelector('input[name="listing[location]"]').value;
+        
+        // Get selected categories
+        const selectedCats = [];
+        document.querySelectorAll('input[name="listing[category][]"]:checked').forEach(cb => {
+            selectedCats.push(cb.value);
+        });
+        const category = selectedCats.join(", ");
+
+        if (!title || !location) {
+            alert("Please enter at least Title and Location before generating an AI description.");
+            return;
+        }
+
+        const btn = document.getElementById("ai-generate-btn");
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...`;
+        btn.disabled = true;
+
+        try {
+            const response = await fetch("/api/ai/generate-description", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ title, location, category, price })
+            });
+            const data = await response.json();
+            
+            if (data.error) {
+                alert(data.error);
+            } else if (data.description) {
+                document.getElementById("description").value = data.description;
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Something went wrong while generating the description.");
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    });
+    </script>
 </body>
 </div>
 </div>
