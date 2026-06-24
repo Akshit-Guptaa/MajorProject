@@ -311,6 +311,8 @@
     }
 </script>
 
+<div id="map-listings-data" data-listings="<%= JSON.stringify(allListings) %>" style="display: none;"></div>
+
 <script>
     // Global Map Logic
     const mapToggleBtn = document.getElementById('map-toggle-btn');
@@ -346,7 +348,8 @@
     });
 
     function initGlobalMap() {
-        const allListingsData = <%- JSON.stringify(allListings).replace(/</g, '\\u003c') %>;
+        const rawData = document.getElementById('map-listings-data').getAttribute('data-listings');
+        const allListingsData = JSON.parse(rawData);
         
         map = L.map('global-map', {
             zoomControl: false
