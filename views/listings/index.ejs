@@ -346,7 +346,7 @@
     });
 
     function initGlobalMap() {
-        const allListingsData = <%- JSON.stringify(allListings) %>;
+        const allListingsData = <%- JSON.stringify(allListings).replace(/</g, '\\u003c') %>;
         
         map = L.map('global-map', {
             zoomControl: false
@@ -363,7 +363,7 @@
         const priceIcon = (price) => L.divIcon({
             html: `<div style="background-color: white; border-radius: 20px; padding: 5px 10px; font-weight: bold; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap;">&#8377; ${price}</div>`,
             className: 'custom-price-icon',
-            iconSize: [null, null]
+            iconSize: null
         });
 
         const bounds = [];
