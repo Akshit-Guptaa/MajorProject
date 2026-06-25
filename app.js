@@ -79,6 +79,7 @@ const sessionOptions = {
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
   },
 };
 
@@ -110,9 +111,11 @@ passport.deserializeUser(User.deserializeUser());
 // })
 
 app.use((req, res, next) => {
-  console.log('Session ID:', req.sessionID);
-  console.log('Session Passport:', req.session.passport);
-  console.log('Req User:', req.user);
+  if (process.env.NODE_ENV !== "production") {
+    console.log('Session ID:', req.sessionID);
+    console.log('Session Passport:', req.session.passport);
+    console.log('Req User:', req.user);
+  }
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   res.locals.currUser = req.user || null;
